@@ -29,4 +29,5 @@ private:
     std::string _windowName;
     std::vector<cv::Mat> _images;
 };
+
 #endif
