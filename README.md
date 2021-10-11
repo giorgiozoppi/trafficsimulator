@@ -16,7 +16,7 @@
 👤 **Giorgio Zoppi**
 
 * Twitter: [@zoppi_giorgio](https://twitter.com/zoppi_giorgio)
-* Github: [@https:\/\/github.com\/trafficsimulator](https://github.com/https:\/\/github.com\/trafficsimulator)
+* Github: [@https:\/\/github.com\/giorgiozoppi\/trafficsimulator](https://github.com/https:\/\/github.com\/trafficsimulator)
 * LinkedIn: [@https:\/\/www.linkedin.com\/in\/jozoppi](https://linkedin.com/in/https:\/\/www.linkedin.com\/in\/jozoppi)
 
 ## Show your support
