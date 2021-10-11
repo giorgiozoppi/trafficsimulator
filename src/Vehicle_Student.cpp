@@ -20,9 +20,12 @@ void Vehicle::setCurrentDestination(std::shared_ptr<Intersection> destination) {
 }
 
 void Vehicle::simulate() {
+
   // Task L1.2 : Start a thread with the member function „drive“ and the object
   // „this“ as the launch parameters. Also, add the created thread into the
   // _thread vector of the parent class.
+  auto drive = std::thread([this] { this->drive(); });
+  _threads.push_back(std::move(drive));
 }
 
 // virtual function which is executed in a thread
@@ -41,7 +44,7 @@ void Vehicle::drive() {
   lastUpdate = std::chrono::system_clock::now();
   while (true) {
     // sleep at every iteration to reduce CPU usage
-    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
     // compute time difference to stop watch
     long timeSinceLastUpdate =
