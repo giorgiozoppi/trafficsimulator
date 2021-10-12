@@ -9,7 +9,7 @@
   </a>
 </p>
 
-> A concurrent traffic simulator.
+> A concurrent traffic simulator. It requires OpenCV installed in your Linux box.
 
 ## Author
 
