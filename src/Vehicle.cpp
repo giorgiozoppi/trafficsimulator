@@ -9,16 +9,16 @@ Vehicle::Vehicle() {
   _posStreet = 0.0;
   _type = ObjectType::objectVehicle;
   _speed = 400; // m/s
-  std::cout << "Started vehicle" << std::endl;
 }
-void Vehicle::terminate() {
+// the vehicles that are not blocked should terminate
+// and free resources, however this is just an approximation of a correct
+// cleanup the correct cleanup has not been required in the tasks.
+Vehicle::~Vehicle() {
   _stopped = true;
   while (!_exited) {
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
   }
-  std::cout << "Exited Vehicle" << std::endl;
 }
-Vehicle::~Vehicle() {}
 
 void Vehicle::setCurrentDestination(std::shared_ptr<Intersection> destination) {
   // update destination

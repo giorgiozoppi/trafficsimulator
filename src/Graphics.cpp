@@ -15,7 +15,7 @@ void Graphics::simulate() {
     this->drawTrafficObjects();
     // this allows to exit when clicked the X button on GTK
     // so we can close the app.
-    // at the end we'll have possibly reached since the termination is not 
+    // at the end we'll have possibly reached since the termination is not
     // in the scope of this app.
     if (cv::getWindowProperty(_windowName, cv::WND_PROP_AUTOSIZE) == -1) {
       break;
