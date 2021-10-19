@@ -13,6 +13,8 @@ Vehicle::Vehicle() {
 // the vehicles that are not blocked should terminate
 // and free resources, however this is just an approximation of a correct
 // cleanup the correct cleanup has not been required in the tasks.
+// The problem here is that we've several entities in a given order to be terminated:
+// traffic light, intersections and vehicles.
 Vehicle::~Vehicle() {
   _stopped = true;
   while (!_exited) {
