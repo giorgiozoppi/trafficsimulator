@@ -1,23 +1,23 @@
-#include <iostream>
-#include <thread>
-#include <vector>
-
 #include "Graphics.h"
 #include "Intersection.h"
 #include "Street.h"
 #include "Vehicle.h"
+#include <iostream>
+#include <memory>
+#include <thread>
+#include <vector>
 
 // Paris
 void createTrafficObjects_Paris(
     std::vector<std::shared_ptr<Street>> &streets,
     std::vector<std::shared_ptr<Intersection>> &intersections,
     std::vector<std::shared_ptr<Vehicle>> &vehicles, std::string &filename,
-    int nVehicles) {
+    size_t nVehicles) {
   // assign filename of corresponding city map
   filename = "../data/paris.jpg";
 
   // init traffic objects
-  int nIntersections = 9;
+  size_t nIntersections = 9;
   for (size_t ni = 0; ni < nIntersections; ni++) {
     intersections.push_back(std::make_shared<Intersection>());
   }
@@ -34,7 +34,7 @@ void createTrafficObjects_Paris(
   intersections.at(8)->setPosition(1700, 900); // central plaza
 
   // create streets and connect traffic objects
-  int nStreets = 8;
+  size_t nStreets = 8;
   for (size_t ns = 0; ns < nStreets; ns++) {
     streets.push_back(std::make_shared<Street>());
     streets.at(ns)->setInIntersection(intersections.at(ns));
@@ -54,12 +54,12 @@ void createTrafficObjects_NYC(
     std::vector<std::shared_ptr<Street>> &streets,
     std::vector<std::shared_ptr<Intersection>> &intersections,
     std::vector<std::shared_ptr<Vehicle>> &vehicles, std::string &filename,
-    int nVehicles) {
+    size_t nVehicles) {
   // assign filename of corresponding city map
   filename = "../data/nyc.jpg";
 
   // init traffic objects
-  int nIntersections = 6;
+  size_t nIntersections = 6;
   for (size_t ni = 0; ni < nIntersections; ni++) {
     intersections.push_back(std::make_shared<Intersection>());
   }
@@ -73,7 +73,7 @@ void createTrafficObjects_NYC(
   intersections.at(5)->setPosition(750, 250);
 
   // create streets and connect traffic objects
-  int nStreets = 7;
+  size_t nStreets = 7;
   for (size_t ns = 0; ns < nStreets; ns++) {
     streets.push_back(std::make_shared<Street>());
   }
@@ -148,9 +148,11 @@ int main() {
                   trafficObjects.push_back(trafficObject);
                 });
 
-  // draw all objects in vector
-  Graphics *graphics = new Graphics();
+  // here we draw and cleanup.
+  std::unique_ptr<Graphics> graphics = std::make_unique<Graphics>();
   graphics->setBgFilename(backgroundImg);
   graphics->setTrafficObjects(trafficObjects);
+  // this loop is not infinite no more
+  // when you click the X botton the application ends.
   graphics->simulate();
 }

@@ -20,6 +20,13 @@ debug:
 	cmake -DCMAKE_CXX_COMPILER=/usr/bin/g++ .. && \
 	make
 
+.PHONY: clang   
+clang:
+	mkdir -p build
+	cd build  \
+	cmake -DCMAKE_CXX_COMPILER=/usr/bin/clang++-13 -DCMAKE_BUILD_TYPE=Debug .. && \
+	make
+
 .PHONY: clean
 clean:
 	rm -rf build

@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.11.3)
 
 set(CMAKE_CXX_STANDARD 17)
 project(traffic)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -Wall -Wextra -Werror -g -ggdb -fsanitize=thread -pthread")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17 -Wall -Wextra -Werror -O1 -fno-omit-frame-pointer -g -ggdb -pthread")
 
 find_package(OpenCV 4.1 REQUIRED)
 
