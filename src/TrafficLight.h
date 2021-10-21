@@ -44,15 +44,8 @@ enum class TrafficLightPhase
 // for the elapsed time of the semaphore.
 struct RandomGenerator
 {
-    RandomGenerator()
-    {
-        _eng = std::mt19937(_device());
-        _distribution = std::uniform_int_distribution<>(4, 6);
-    }
-    int nextInt()
-    {
-        return _distribution(_eng);
-    }
+    RandomGenerator();
+    int nextInt();
 
 private:
     std::random_device _device;
@@ -93,7 +86,7 @@ private:
     // we add a generator foreach TrafficLight.
     // we might want to avoid singletons.
     // this mitigate the effect of generation engine creation since we create the traffic light before executing
-    // the animation, and we might want that each traffic light has its own different 
+    // the animation, and we might want that each traffic light has its own different
     // random period.
     RandomGenerator _generator;
     MessageQueue<TrafficLightPhase> _queue;

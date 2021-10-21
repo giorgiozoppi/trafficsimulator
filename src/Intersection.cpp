@@ -89,8 +89,14 @@ void Intersection::addVehicleToQueue(std::shared_ptr<Vehicle> vehicle) {
   // FP.6b : use the methods TrafficLight::getCurrentPhase and
   // TrafficLight::waitForGreen to block the execution until the traffic light
   // turns green.
+  // the test should be in mutual exclusion and it might be skipped but specifications
+  // tell us to use getCurrentPhase
   while (_trafficLight.getCurrentPhase() == TrafficLightPhase::red) {
+    lck.unlock();
+    //    This block of code is not considered to be a shared resource so it
+    //    could be easily out of the lock guard
     _trafficLight.waitForGreen();
+    lck.lock();
   }
   std::cout << "Intersection #" << _id << ": Vehicle #" << vehicle->getID()
             << " is granted entry." << std::endl;
