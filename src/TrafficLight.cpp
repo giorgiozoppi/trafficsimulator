@@ -44,6 +44,7 @@ void TrafficLight::switchTrafficLightPhase() {
   if (_currentPhase == TrafficLightPhase::red) {
     _currentPhase = TrafficLightPhase::green;
     lk.unlock();
+    // notify people waiting at the intersection
     TrafficLightPhase state{TrafficLightPhase::green};
     _queue.send(std::move(state));
     lk.lock();
@@ -66,12 +67,12 @@ void TrafficLight::cycleThroughPhases() {
     auto seconds =
         std::chrono::duration_cast<std::chrono::seconds>(current - previous);
 
+    // we switch when the counts are between 4 and 6 seconds.
     if (seconds.count() >= distr(eng)) {
       switchTrafficLightPhase();
       previous = current;
     }
-
-    std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+    std::this_thread::sleep_for(std::chrono::milliseconds(1));
   }
   _exited = true;
 }
