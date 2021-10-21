@@ -69,6 +69,7 @@ void TrafficLight::cycleThroughPhases() {
     } else {
       current = std::chrono::high_resolution_clock::now();
     }
+    // required change: Sleep shall happen each iteration so shall be placed out of the if statement
     std::this_thread::sleep_for(std::chrono::milliseconds(1));
   }
 }
