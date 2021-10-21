@@ -3,6 +3,7 @@
 
 #include <mutex>
 #include <deque>
+#include <random>
 #include <condition_variable>
 #include <utility>
 #include "TrafficObject.h"
@@ -39,14 +40,32 @@ enum class TrafficLightPhase
     red,
     green
 };
+// RandomGenetor is a random number generator
+// for the elapsed time of the semaphore.
+struct RandomGenerator
+{
+    RandomGenerator()
+    {
+        _eng = std::mt19937(_device());
+        _distribution = std::uniform_int_distribution<>(4, 6);
+    }
+    int nextInt()
+    {
+        return _distribution(_eng);
+    }
 
+private:
+    std::random_device _device;
+    std::uniform_int_distribution<> _distribution;
+    std::mt19937 _eng;
+};
 
 class TrafficLight : public TrafficObject
 {
 public:
     // constructor / desctructor
     TrafficLight();
-    ~TrafficLight() = default;
+    ~TrafficLight();
     // I delete the copy due to condition/mutex
     // some compilers deal with this automagically removing the copy/move
     // since we've deleted the copy constructor the object
@@ -57,13 +76,9 @@ public:
 
     void waitForGreen();
     void simulate() override;
-    // we provide a mechanism based on two atomics
-    // for stopping the infinite loop.
-    void stop();
 
     // getters / setters
     TrafficLightPhase getCurrentPhase() const;
-    void switchTrafficLightPhase();
     // typical behaviour methods
 
 private:
@@ -72,12 +87,15 @@ private:
     // FP.4b : create a private member of type MessageQueue for messages of type TrafficLightPhase
     // and use it within the infinite loop to push each new TrafficLightPhase into it by calling
     // send in conjunction with move semantics.
-
     std::condition_variable _condition;
     std::mutex _mutex;
-    mutable std::mutex _phase_mutex;
     TrafficLightPhase _currentPhase;
-
+    // we add a generator foreach TrafficLight.
+    // we might want to avoid singletons.
+    // this mitigate the effect of generation engine creation since we create the traffic light before executing
+    // the animation, and we might want that each traffic light has its own different 
+    // random period.
+    RandomGenerator _generator;
     MessageQueue<TrafficLightPhase> _queue;
 };
 

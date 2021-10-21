@@ -5,87 +5,85 @@
 /* Implementation of class "MessageQueue" */
 /*
  */
-template <typename T> T MessageQueue<T>::receive() {
+
+template <typename T>
+T MessageQueue<T>::receive()
+{
 
   std::unique_lock<std::mutex> lk(_mutex);
   /// here we use this and queue to avoid
   /// spurious wake-up.
-  _new_item.wait(lk, [this] { return !_queue.empty(); });
+  _new_item.wait(lk, [this]
+                 { return !_queue.empty(); });
 
   T item = std::move(_queue.front());
   _queue.pop_front();
   return item;
 }
-template <typename T> void MessageQueue<T>::send(T &&msg) {
-  {
-    std::lock_guard<std::mutex> lk(_mutex);
-    _queue.emplace_back(std::move(msg));
-  }
+template <typename T>
+void MessageQueue<T>::send(T &&msg)
+{
+  std::unique_lock<std::mutex> lk(_mutex);
+  _queue.clear();
+  _queue.emplace_back(std::move(msg));
+  // Manual unlocking is done before notifying, to avoid waking up
+  // the waiting thread only to block again - see cppreference.com
+  lk.unlock();
   _new_item.notify_one();
 }
-
-void TrafficLight::waitForGreen() {
-  auto shape = TrafficLightPhase::red;
-  while (shape != TrafficLightPhase::green) {
+void TrafficLight::waitForGreen()
+{
+  TrafficLightPhase shape;
+  do
+  {
     shape = _queue.receive();
-  }
+  } while (shape != TrafficLightPhase::green);
 }
-TrafficLight::TrafficLight() {
-  std::lock_guard<std::mutex> lk(_phase_mutex);
-  _currentPhase = TrafficLightPhase::red;
-}
+TrafficLight::TrafficLight() { _currentPhase = TrafficLightPhase::red; }
+TrafficLight::~TrafficLight() {}
 
-TrafficLightPhase TrafficLight::getCurrentPhase() const {
-  std::lock_guard<std::mutex> lk(_phase_mutex);
+TrafficLightPhase TrafficLight::getCurrentPhase() const
+{
   return _currentPhase;
 }
-void TrafficLight::switchTrafficLightPhase() {
-  std::unique_lock<std::mutex> lk(_phase_mutex);
-  if (_currentPhase == TrafficLightPhase::red) {
-    _currentPhase = TrafficLightPhase::green;
-    lk.unlock();
-    // notify people waiting at the intersection
-    TrafficLightPhase state{TrafficLightPhase::green};
-    _queue.send(std::move(state));
-    lk.lock();
-  } else if (_currentPhase == TrafficLightPhase::green) {
-    _currentPhase = TrafficLightPhase::red;
-  }
-}
 
-void TrafficLight::cycleThroughPhases() {
-
-  std::random_device rd;
-  std::mt19937 eng(rd());
-  std::uniform_int_distribution<> distr(4, 6);
+void TrafficLight::cycleThroughPhases()
+{
 
   auto previous{std::chrono::high_resolution_clock::now()};
+  auto interval = _generator.nextInt() * 1000;
+  auto current{std::chrono::high_resolution_clock::now()};
 
-  while (!_stopped) {
-    auto current{std::chrono::high_resolution_clock::now()};
+  while (true)
+  {
 
-    auto seconds =
-        std::chrono::duration_cast<std::chrono::seconds>(current - previous);
+    auto seconds = std::chrono::duration_cast<std::chrono::milliseconds>(
+        current - previous);
 
     // we switch when the counts are between 4 and 6 seconds.
-    if (seconds.count() >= distr(eng)) {
-      switchTrafficLightPhase();
+    if (seconds.count() >= interval)
+    {
+      if (_currentPhase == TrafficLightPhase::red)
+      {
+        _currentPhase = TrafficLightPhase::green;
+      }
+      else if (_currentPhase == TrafficLightPhase::green)
+      {
+        _currentPhase = TrafficLightPhase::red;
+      }
       previous = current;
+      current = std::chrono::high_resolution_clock::now();
+      _queue.send(std::move(_currentPhase));
+      std::this_thread::sleep_for(std::chrono::milliseconds(1));
     }
-    std::this_thread::sleep_for(std::chrono::milliseconds(1));
-  }
-  _exited = true;
-}
-void TrafficLight::stop() {
-  _stopped = true;
-  auto free = TrafficLightPhase::green;
-  while (!_exited) {
-    _queue.send(std::move(free));
-    _currentPhase = TrafficLightPhase::green;
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    else
+    {
+      current = std::chrono::high_resolution_clock::now();
+    }
   }
 }
-void TrafficLight::simulate() {
+void TrafficLight::simulate()
+{
   std::thread t(&TrafficLight::cycleThroughPhases, this);
   // FP.2b : Finally, the private method „cycleThroughPhases“ should be
   // started in a thread when the public method „simulate“ is called. To do
